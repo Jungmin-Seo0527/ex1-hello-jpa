@@ -27,10 +27,20 @@ public class JpaMain {
             // findMember.setName("HelloJPA");
 
             // 회원 조회
-            em.createQuery("select m from Member m", Member.class)
-                    .getResultList().stream()
-                    .map(Member::getName)
-                    .forEach(System.out::println);
+            // em.createQuery("select m from Member m", Member.class)
+            //         .getResultList().stream()
+            //         .map(Member::getName)
+            //         .forEach(System.out::println);
+
+            // 비영속
+            Member member = new Member();
+            member.setId(100L);
+            member.setName("HelloJPA");
+
+            // 영속
+            System.out.println("---------------Before-------------");
+            em.persist(member);
+            System.out.println("---------------After-------------");
 
             tx.commit();
         } catch (Exception e) {
