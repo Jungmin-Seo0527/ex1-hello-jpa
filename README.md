@@ -144,4 +144,73 @@ em.remove(member);
         * 정확하게는 `member.getFriend()는 프록시 객체`
         * 이후에 `Friend`엔티티가 필요한 경우(`member.getFriend()`를 수행한 경우) 그때 Friend 테이블에서 필요한 엔티티를 조회한다.
 
+### 2-2. 영속성 컨텍스트 2
+
+#### 엔티티 조회, 1차 캐시
+
+```java
+public class Main {
+    public static void main(String[] args) {
+
+        // 엔티티를 생성한 상태 (비영속)
+        Member member = new Member();
+        member.setId(1L);
+        member.setName("Jungmin");
+
+        // 엔티티를 영속 - 1차 캐시에 등록
+        em.persist(member);
+
+        // DB가 아닌 캐시에서 조회
+        Member findMember = em.find(Member.class, 1L);
+    }
+}
+```
+
+![](https://i.ibb.co/Jj8CS7K/bandicam-2021-07-10-17-57-59-015.jpg)
+
+* 엔티티를 영속한 순간에 엔티티는 1차 캐시에 저장된다.
+* 동일한 엔티티를 조회하면 해당 엔티티는 1차 캐시에 존재하므로 DB에서 조회하지 않고 1차 캐시의 엔티티를 반환해준다.
+    * 단 조회한 엔티티가 1차 캐시에 없다면 DB에 접근해서 조회한다.
+
+#### 영속 엔티티의 동일성 보장
+
+```
+Member a = em.find(Member.class, "member1");
+Member b = em.find(Member.class, "member1");
+
+System.out.println(a == b); // true
+```
+
+* 1차 캐시로 반복 가능한 읽기(REPEATABLE READ) 등급의 트랜잭션 격리 수준을 데이터베이스가 아닌 애플리케이션 차원에서 제공
+
+#### 엔티티 등록 - 트랜잭션을 지원하는 쓰기 지연
+
+* 트랜잭션을 커밋을 해야 영속성 컨텍스의 `쓰기 지연 SQL 저장소`에서 DB에 쿼리를 보낸다.
+
+#### 변경 감지
+
+![](https://i.ibb.co/j60VjL6/bandicam-2021-07-10-18-05-12-676.jpg)
+
+* 엔티티를 변경하면 (`member.setName("다른 이름")`) 영속성 컨텍스트는 트랜잭션이 끝난 이후 변경 사항을 확인한다.
+* 변경 사항이 존재한다면 쓰기 지연 SQL 저장소에서 `Update`쿼리문을 생성한다.
+* 일괄적으로 DB에 쿼리를 보내서 변경사항을 적용한다.
+* 개발자 입장에서 `em.update(member)`와 같은 갱신에 대한 코드를 작성할 필요가 없다.
+
+#### 엔티티 삭제
+
+`em.remove(member)`
+
+#### MN
+
+이전 강의에서 내가 알고 있는 영속성 컨텍스트의 장점, 특징에 대한 내용을 거의 다 일치한다.
+
+현 시점에서 아직 강의에 나오지 않는 내용은 지연 로딩이다.
+
+1차 캐시, 동일성 보장, 쓰기 지연, 변경감지 까지는 강의 내용과 내가 알고 있는 내용이 일치함을 확인했다.
+
+한가지 다른점이 존재한다.
+
+나는 1차 캐시 자체에서 변경감지가 일어나면 쿼리문을 생성하는 것인줄 알았으나, 쓰기 지연 SQL 저장소라는 쿼리문 생성 역할을 담당하는 객체? 가 존재서 일괄적으로 쿼리문을 생성했다.         
+1차 캐시에는 변경감지, 쿼리문은 쓰기 지연 SQL 저장소
+
 # Note
