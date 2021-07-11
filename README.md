@@ -107,4 +107,120 @@ logging:
 
 > YML? XML?
 
+### 3-3. 필드와 컬럼 매핑
+
+#### Member.java (수정) - 요구사항 추가
+
+* 요구사항
+    * 회원은 일반 회원과 관리자로 구분해야 한다.
+    * 회원 가입일과 수정일이 있어야 한다.
+    * 회원을 설명할 수 있는 필드가 있으야 한다 이 필드는 길이 제한이 없다.
+
+```java
+package hellojpa;
+
+import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
+@Entity
+public class Member {
+
+    @Id
+    private Long id;
+
+    @Column(name = "name")
+    private String username;
+
+    private Integer age;
+
+    @Enumerated(EnumType.STRING)
+    private RoleType roleType;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastModifiedDate;
+
+    private LocalDate testLocalDate;
+    private LocalDateTime testLocalDateTime;
+
+    @Lob
+    private String description;
+
+    public Member() {
+    }
+}
+
+```
+
+#### 매핑 어노테이션 정리
+
+* `hibernate.hbm2ddl.auto`
+* `@Column`: 컬럼 매핑
+* `@Temporal`: 날짜 타입 매핑
+* `@Enumerated`: enum 타입 매핑
+* `@Lob`: BLOB, CLOB 매핑
+* `@Transient`: 특정 필드를 컬럼에 매핑하지 않음(매핑 무시)
+
+##### @Column
+
+* `name`: 필드과 매핑할 테이블의 컬럼 이름
+    * default: 객체의 필드 이름
+* `insetable`, `updatable`: 등록, 변경 가능 여부
+    * default: TRUE
+* `nullable(DDL)`: null 값의 허용 여부를 설정
+    * false: DDL 생성 시에 not null 제약 조건이 붙는다.
+* `unique(DDL)`: `@Table`의 `uniqueConstraints`와 같지만 한 컬럼에 간단히 유니크 제약조건을 걸 때 사용한다.
+    * 제약명이 알아보기 힘들다.
+    * `@Table(uniqueConstraints = {@UniqueConstraint(name = "NAME_AGE_UNIQUE", columnNames = {"NAME", "AGE"})})
+      https://gmlwjd9405.github.io/2019/08/11/entity-mapping.html` 와 같은 방법을 많이 사용한다.
+* `colmnDefinition`: 데이터베이스 컬럼 정보를 직접 줄 수 있다.
+    * ex) varchar(100), default: `EMPTY`
+* `length(DDL)`: 문자 길이 제약 조건, String 타입에만 사용한다.
+    * default: 255
+* `precision, scale(DDL)`: BigDecimal 타입에서 사용한다. (BigInteger도 사용할 수 있다.)
+    * `precision`은 소수점을 포함한 존체 자릿수를, `scale`은 소수의 자릿수다.
+    * `double`, `float`타입에는 적용되지 않는다.
+    * 아주 큰 숫자나 정밀한 소수를 다루어야 할 때만 사용한다.
+    * default: `precision=19, scale=2`
+
+#### @Enumerated
+
+* 자바 enum 타입을 매핑할 때 사용
+* **ORDINAL 사용 X**
+* value
+    * `EnumType.ORDINAL`: enum 순서를 데이터베이스에 저장
+    * `EnumType.STRING`: enum 이름을 데이터베이스에 저장
+    * default: `EnymType.ORDINAL` - 항상 `EnumType.STRING`으로 설정을 바꿔 주는 것이 좋다.
+
+#### @Temporal
+
+* 날짜 타입(java.util.Date, java.util.Calendar)을 매핑할 때 사용
+* `LocalDate`, `LocalDateTime`을 사용할 때는 생략 가능(최신 하이버네이트 지원)
+* value
+    * `TemporalType.DATE`: 날짜, 데이터베이스 data 타입과 매핑
+        * 예) 2013-10-11
+    * `TemporalType.TEIM`: 시간, 데이터베이스 time 타입과 매핑
+        * 예) 11:11:11
+    * `TemporalType.TIMESTAMP`: 날짜와 시간, 데이터베이스 timestamp 타입과 매핑
+        * 예) 2013-10-11 11:11:11
+
+#### @Lob
+
+* DB에서 varchar를 넘어서는 큰 내용을 넣고 싶은 경우에 사용한다.
+* 데이터베이스 BLOB, CLOB 타입과 매핑
+* `@Lob`에는 지정할 수 있는 속성이 없다.
+* 매핑하는 필드 타입이 문자면 CLOB, 나머지는 BLOB 매핑
+    * CLOB: String, char[], java.sql.CLOB
+    * BLOB: byte[], java.sql.BLOB
+
+#### @Transient
+
+* 필드 매핑 X
+* 데이터베이스에 저장X, 조회X
+* 주로 메모리상에서만 임시로 어떤 값을 보관하고 싶을 때 사용
+
 # Note
