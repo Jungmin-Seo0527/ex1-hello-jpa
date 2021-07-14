@@ -9,7 +9,7 @@ import javax.persistence.*;
 @TableGenerator(
         name = "member_seq_generator",
         table = "MY_SEQUENCES",
-        pkColumnName = "MEMBER_SEQ", allocationSize = 1
+        pkColumnValue = "MEMBER_SEQ", allocationSize = 1
 )
 public class Member {
 
