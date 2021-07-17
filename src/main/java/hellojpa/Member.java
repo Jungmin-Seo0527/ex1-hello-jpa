@@ -19,7 +19,7 @@ import java.util.List;
         table = "MY_SEQUENCES",
         pkColumnValue = "MEMBER_SEQ", allocationSize = 1
 )
-public class Member {
+public class Member extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE,
             generator = "member_seq_generator")
@@ -30,6 +30,7 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<MemberProduct> memberProducts = new ArrayList<>();
+
 
     public Member() {
     }
