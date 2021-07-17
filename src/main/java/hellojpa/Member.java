@@ -5,10 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.TableGenerator;
-import java.util.ArrayList;
-import java.util.List;
+
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
 // @SequenceGenerator(name = "member_seq_generator",
@@ -19,7 +20,7 @@ import java.util.List;
         table = "MY_SEQUENCES",
         pkColumnValue = "MEMBER_SEQ", allocationSize = 1
 )
-public class Member extends BaseEntity{
+public class Member extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.SEQUENCE,
             generator = "member_seq_generator")
@@ -28,8 +29,12 @@ public class Member extends BaseEntity{
     @Column(name = "name")
     private String username;
 
-    @OneToMany(mappedBy = "member")
-    private List<MemberProduct> memberProducts = new ArrayList<>();
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "TEAM_ID", insertable = false, updatable = false)
+    private Team team;
+
+    // @OneToMany(mappedBy = "member")
+    // private List<MemberProduct> memberProducts = new ArrayList<>();
 
 
     public Member() {
