@@ -30,7 +30,7 @@ public class Member extends BaseEntity {
     private String username;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "TEAM_ID", insertable = false, updatable = false)
+    @JoinColumn(name = "TEAM_ID")
     private Team team;
 
     // @OneToMany(mappedBy = "member")
@@ -54,5 +54,13 @@ public class Member extends BaseEntity {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }
