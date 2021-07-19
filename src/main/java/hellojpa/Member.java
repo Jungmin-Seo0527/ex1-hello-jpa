@@ -1,44 +1,25 @@
 package hellojpa;
 
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.TableGenerator;
-
-import static javax.persistence.FetchType.LAZY;
 
 @Entity
-// @SequenceGenerator(name = "member_seq_generator",
-//         sequenceName = "member_seq", // 매핑할 데이터베이스 시퀀스 이름
-//         initialValue = 1, allocationSize = 1)
-@TableGenerator(
-        name = "member_seq_generator",
-        table = "MY_SEQUENCES",
-        pkColumnValue = "MEMBER_SEQ", allocationSize = 1
-)
-public class Member extends BaseEntity {
+public class Member {
 
-    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE,
-            generator = "member_seq_generator")
+    @Id @GeneratedValue()
     private Long id;
 
     @Column(name = "name")
     private String username;
 
-    @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "TEAM_ID")
-    private Team team;
+    @Embedded
+    private Peroid peroid;
 
-    // @OneToMany(mappedBy = "member")
-    // private List<MemberProduct> memberProducts = new ArrayList<>();
-
-
-    public Member() {
-    }
+    @Embedded
+    private Address address;
 
     public Long getId() {
         return id;
@@ -56,11 +37,19 @@ public class Member extends BaseEntity {
         this.username = username;
     }
 
-    public Team getTeam() {
-        return team;
+    public Peroid getPeroid() {
+        return peroid;
     }
 
-    public void setTeam(Team team) {
-        this.team = team;
+    public void setPeroid(Peroid peroid) {
+        this.peroid = peroid;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 }
